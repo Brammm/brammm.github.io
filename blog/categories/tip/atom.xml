@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Tip | Brammm]]></title>
+  <link href="http://bramvandersype.be/blog/categories/tip/atom.xml" rel="self"/>
+  <link href="http://bramvandersype.be/"/>
+  <updated>2014-10-17T14:47:09+02:00</updated>
+  <id>http://bramvandersype.be/</id>
+  <author>
+    <name><![CDATA[Bram Van der Sype]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Upgrading to Mac OS X Mavericks Breaks Apache]]></title>
+    <link href="http://bramvandersype.be/blog/2013/10/23/upgrading-to-mavericks-breaks-apache/"/>
+    <updated>2013-10-23T16:02:00+02:00</updated>
+    <id>http://bramvandersype.be/blog/2013/10/23/upgrading-to-mavericks-breaks-apache</id>
+    <content type="html"><![CDATA[<p>I decided to upgrade to Mavericks today. Things went pretty smooth, right up until trying to continue work. I don&rsquo;t use Vagrant or MAMP, but rather the built in Apache2 (with PHP, etc installed via Homebrew).</p>
+
+<p>My VirtualHosts in <code>/etc/apache2/extra/httpd-vhosts.conf</code> were kept, but going to <a href="http://localhost/">http://localhost/</a> took me to the default &ldquo;It Works!&rdquo; page. I quickly discovered that the httpd.conf file was reset. Stuff I had to do to fix it below.</p>
+
+<!-- more -->
+
+
+<ul>
+<li>In <code>httpd.conf</code>, uncomment <code>Include /private/etc/apache2/extra/httpd-vhosts.conf</code></li>
+<li>In <code>httpd.conf</code>, include the path to mod_php, in my case <code>LoadModule php5_module /usr/local/Cellar/php54/5.4.19/libexec/apache2/libphp5.so</code></li>
+<li>Create a file <code>&lt;yourusername&gt;.conf</code> in <code>/etc/apache2/users</code> with content
+<code>text /etc/apache2/users/bram.conf
+  &lt;Directory "/path/to/your/sites/"&gt;
+  Options Indexes MultiViews FollowSymLinks
+  AllowOverride All
+  Order allow,deny
+  Allow from all
+  &lt;/Directory&gt;
+</code></li>
+<li>Chown the file <code>sudo chown root:wheel /etc/apache2/users/&lt;yourusername&gt;.conf</code></li>
+<li>Restart Apache with <code>sudo apachectl restart</code></li>
+</ul>
+
+
+<p>That fixed it for me.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Git Terminal Tricks]]></title>
+    <link href="http://bramvandersype.be/blog/2013/10/09/git-terminal-tricks/"/>
+    <updated>2013-10-09T10:12:00+02:00</updated>
+    <id>http://bramvandersype.be/blog/2013/10/09/git-terminal-tricks</id>
+    <content type="html"><![CDATA[<p>I develop on Mac OS X and do my Git stuff in Terminal but I often found myself cursing at two things:</p>
+
+<ul>
+<li>Doing <code>git status</code> or <code>git branch</code> just to know which branch was active</li>
+<li>Doing <code>git checkout d</code><kbd>Tab</kbd> in the hopes of getting <code>git checkout develop</code></li>
+</ul>
+
+
+<p>This might be horribly obvious to some people and don&rsquo;t ask me why, but only after months of cursing at this, I decided to Google these two things and make my Git life easier.</p>
+
+<!-- more -->
+
+
+<h2>Git auto-complete</h2>
+
+<p>For the auto-complete, I found this stackexchange question: <a href="http://apple.stackexchange.com/questions/55875/git-auto-complete-for-branches-at-the-command-line">git auto-complete for <em>branches</em> at the command line?</a>. <a href="http://apple.stackexchange.com/users/24565/michael-durrant">Michael Durrant</a>&rsquo;s answer is surprisingly simple, but works just fine: download a git-autocomplete bash script and call it in your <code>~/.bash_profile</code> file.</p>
+
+<pre><code>curl https://raw.github.com/git/git/master/contrib/completion/git-completion.bash -o ~/.git-completion.bash
+</code></pre>
+
+<p>Edit (or create) your <code>~/.bash_profile</code> file with your favorite editor (Vim, Nano or <a href="http://www.sublimetext.com/docs/2/osx_command_line.html">maybe even Sublime?</a>) and paste the following:</p>
+
+<pre><code>if [ -f ~/.git-completion.bash ]; then
+    . ~/.git-completion.bash
+fi
+</code></pre>
+
+<blockquote><p>Note that this not only works for branches. If you do <code>git </code><kbd>Tab</kbd><kbd>Tab</kbd> (note the space after <code>git</code>), you get a list of all git sub-commands. <code>git bl</code><kbd>Tab</kbd> would auto-complete to <code>git blame</code>.</p></blockquote>
+
+<h2>Displaying branch names in Terminal</h2>
+
+<p>To display branch names in terminal (next to the current directory), I used a solution found <a href="http://martinfitzpatrick.name/article/add-git-branch-name-to-terminal-prompt-mac">here</a>. Simply copy/paste the following lines in the same <code>~/.bash_profile</code> as before</p>
+
+<pre><code>parse_git_branch() {
+    git branch 2&gt; /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+}
+export PS1="\u@\h \W\[\033[32m\]\$(parse_git_branch)\[\033[00m\] $ "
+</code></pre>
+
+<blockquote><p>Notes</p>
+
+<ul>
+<li>If you already have a PS1 variable, just add the <code>\$(parse_git_branch)</code> somewhere in there.</li>
+<li><code>\[\033[32m\]</code> sets the color of the branch name to green. <code>\[\033[00m\]</code> sets everything back to black. To change the color of the branch name, change the <code>2</code> in the <code>[32m\]</code> bit. You can find the <a href="http://en.wikipedia.org/wiki/ANSI_escape_code#Colors">color codes on Wikipedia</a>.</li>
+<li>You do not need to restart Terminal or anything for the changes to take effect, just do <code>source ~/.bash_profile</code>.</li>
+</ul>
+</blockquote>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Symfony: Doing Composer Update With Symlinked Assets]]></title>
+    <link href="http://bramvandersype.be/blog/2013/08/12/symfony-doing-composer-update-with-symlinked-assets/"/>
+    <updated>2013-08-12T08:23:00+02:00</updated>
+    <id>http://bramvandersype.be/blog/2013/08/12/symfony-doing-composer-update-with-symlinked-assets</id>
+    <content type="html"><![CDATA[<pre><code>$ composer update
+...
+Installing assets using the hard copy option
+</code></pre>
+
+<p>Ugh fuck. Now I have to make sure I don&rsquo;t forget <code>app/console assets:install --symlink</code>, or I&rsquo;m gonna be cursing next time I&rsquo;m adjusting CSS and I don&rsquo;t see my changes happening, because I forgot they&rsquo;re no longer symlinked.</p>
+
+<!-- more -->
+
+
+<p>By fumbling around, I noticed you can set an environment variable, called <code>SYMFONY_ASSETS_INSTALL</code> that will define the method used when installing assets after a composer update.</p>
+
+<p>To do this on Mac OS X, add this to your ~/.bash_profile:</p>
+
+<pre><code>export SYMFONY_ASSETS_INSTALL=symlink" to ~/.bash_profile
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

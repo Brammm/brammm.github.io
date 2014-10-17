@@ -9,7 +9,7 @@
   <meta name="author" content="Bram Van der Sype">
 
   
-  <meta name="description" content=" Blog Archives Recent Posts ">
+  <meta name="description" content="I decided to upgrade to Mavericks today. Things went pretty smooth, right up until trying to continue work. I don&rsquo;t use Vagrant or MAMP, but &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -57,6 +57,7 @@
   
 <ul class="main-navigation">
   <li><a href="/">Blog</a></li>
+  <li><a href="/about">About</a></li>
   <li><a href="/blog/archives">Archives</a></li>
 </ul>
 
@@ -65,6 +66,228 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/23/upgrading-to-mavericks-breaks-apache/">Upgrading to Mac OS X Mavericks Breaks Apache</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-10-23T16:02:00+02:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2013</span></span> <span class='time'>4:02 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I decided to upgrade to Mavericks today. Things went pretty smooth, right up until trying to continue work. I don&rsquo;t use Vagrant or MAMP, but rather the built in Apache2 (with PHP, etc installed via Homebrew).</p>
+
+<p>My VirtualHosts in <code>/etc/apache2/extra/httpd-vhosts.conf</code> were kept, but going to <a href="http://localhost/">http://localhost/</a> took me to the default &ldquo;It Works!&rdquo; page. I quickly discovered that the httpd.conf file was reset. Stuff I had to do to fix it below.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/10/23/upgrading-to-mavericks-breaks-apache/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/21/enabling-and-configuring-bundles-from-within-appkernel/">Enabling and Configuring Bundles From Within AppKernel</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-10-21T11:59:00+02:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2013</span></span> <span class='time'>11:59 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I don&rsquo;t use Vagrant (I know, I know) and because of that, my develop machine (my laptop) does not have the same configuration as our server. And while I wanted to use <a href="https://github.com/facebook/xhprof">xhprof</a> locally, our server didn&rsquo;t have it. I also wanted to use the <a href="https://github.com/jonaswouters/XhprofBundle">jns/xhprof-bundle</a>.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/10/21/enabling-and-configuring-bundles-from-within-appkernel/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/09/git-terminal-tricks/">Git Terminal Tricks</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-10-09T10:12:00+02:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>10:12 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I develop on Mac OS X and do my Git stuff in Terminal but I often found myself cursing at two things:</p>
+
+<ul>
+<li>Doing <code>git status</code> or <code>git branch</code> just to know which branch was active</li>
+<li>Doing <code>git checkout d</code><kbd>Tab</kbd> in the hopes of getting <code>git checkout develop</code></li>
+</ul>
+
+
+<p>This might be horribly obvious to some people and don&rsquo;t ask me why, but only after months of cursing at this, I decided to Google these two things and make my Git life easier.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/10/09/git-terminal-tricks/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/08/12/symfony-loading-bundle-configuration-directly-in-appkernel/">Symfony: Loading Bundle Configuration Directly in AppKernel</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-08-12T09:19:00+02:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>9:19 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I develop locally on my machine. On the server, I have a staging and production environment. Staging is run in dev, production in prod. Something you probably are familiar with. The server is monitored with <a href="http://newrelic.com/">New Relic</a>, but on my local machine, I wanted to use <a href="http://pecl.php.net/package/xhprof">XHProf</a>.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/08/12/symfony-loading-bundle-configuration-directly-in-appkernel/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/08/12/symfony-doing-composer-update-with-symlinked-assets/">Symfony: Doing Composer Update With Symlinked Assets</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-08-12T08:23:00+02:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>8:23 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ composer update
+</span><span class='line'>...
+</span><span class='line'>Installing assets using the hard copy option</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Ugh fuck. Now I have to make sure I don&rsquo;t forget <code>app/console assets:install --symlink</code>, or I&rsquo;m gonna be cursing next time I&rsquo;m adjusting CSS and I don&rsquo;t see my changes happening, because I forgot they&rsquo;re no longer symlinked.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/08/12/symfony-doing-composer-update-with-symlinked-assets/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/08/12/symfony-absolute-asset-urls-in-twig-templates/">Symfony: Absolute Asset URLs in Twig Templates</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-08-12T07:30:00+02:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>7:30 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>As with many applications, mine sends several e-mails. Some are sent instantaneously, some are sent from the spool. Whatever the case may be, you need absolute urls to links and assets. As an alternative to <code>path()</code>, Symfony provides the <a href="http://symfony.com/doc/current/book/templating.html#linking-to-pages"><code>url()</code></a> function for Twig, which creates an absolute url for a certain path. However, there&rsquo;s no alternative for <code>asset()</code>. The only solutions so far I&rsquo;ve seen, required prepending <code>asset()</code> with <code>app.request.host</code> or something similar.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/08/12/symfony-absolute-asset-urls-in-twig-templates/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   <div class="pagination">
     
@@ -77,6 +300,26 @@
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/10/23/upgrading-to-mavericks-breaks-apache/">Upgrading to Mac OS X Mavericks Breaks Apache</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/10/21/enabling-and-configuring-bundles-from-within-appkernel/">Enabling and Configuring Bundles From Within AppKernel</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/10/09/git-terminal-tricks/">Git Terminal Tricks</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/12/symfony-loading-bundle-configuration-directly-in-appkernel/">Symfony: Loading Bundle Configuration Directly in AppKernel</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/12/symfony-doing-composer-update-with-symlinked-assets/">Symfony: Doing Composer Update With Symlinked Assets</a>
+      </li>
     
   </ul>
 </section>

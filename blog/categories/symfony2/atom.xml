@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Symfony2 | Brammm]]></title>
+  <link href="http://bramvandersype.be/blog/categories/symfony2/atom.xml" rel="self"/>
+  <link href="http://bramvandersype.be/"/>
+  <updated>2014-10-17T14:47:09+02:00</updated>
+  <id>http://bramvandersype.be/</id>
+  <author>
+    <name><![CDATA[Bram Van der Sype]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Symfony: Loading Bundle Configuration Directly in AppKernel]]></title>
+    <link href="http://bramvandersype.be/blog/2013/08/12/symfony-loading-bundle-configuration-directly-in-appkernel/"/>
+    <updated>2013-08-12T09:19:00+02:00</updated>
+    <id>http://bramvandersype.be/blog/2013/08/12/symfony-loading-bundle-configuration-directly-in-appkernel</id>
+    <content type="html"><![CDATA[<p>I develop locally on my machine. On the server, I have a staging and production environment. Staging is run in dev, production in prod. Something you probably are familiar with. The server is monitored with <a href="http://newrelic.com/">New Relic</a>, but on my local machine, I wanted to use <a href="http://pecl.php.net/package/xhprof">XHProf</a>.</p>
+
+<!-- more -->
+
+
+<p>I wanted to use <a href="https://github.com/jonaswouters/XhprofBundle">jonaswouters&#8217; XHProfBundle</a>, but out of the box, this would have caused a bit of an issue when deploying: I couldn&rsquo;t simply enable the bundle in AppKernel.php because Staging also runs the dev environment and XHProf isn&rsquo;t installed on the server.</p>
+
+<p>I decided to wrap the bundle loading in <code>if()</code>:
+<code>php AppKernel.php
+if (in_array($this-&gt;getEnvironment(), array('dev', 'test'))) {
+    $bundles[] = new Symfony\Bundle\WebProfilerBundle\WebProfilerBundle();
+    $bundles[] = new Sensio\Bundle\DistributionBundle\SensioDistributionBundle();
+    $bundles[] = new Sensio\Bundle\GeneratorBundle\SensioGeneratorBundle();
+    if (function_exists('xhprof_enable')) {
+        $bundles[] = new Jns\Bundle\XhprofBundle\JnsXhprofBundle();
+    }
+}
+</code>
+This would load the bundle only if XHProf was installed on the server.</p>
+
+<p>However, the bundle needs a bit of configuration in config.yml. Trying to work with a configuration file that has configuration for bundles that aren&rsquo;t loaded will result in an InvalidArgumentException:
+<blockquote><p>There is no extension able to load the configuration for &ldquo;jns_xhprof&rdquo;</p></blockquote></p>
+
+<p>As I couldn&rsquo;t repeat the above <code>if()</code> in config.yml, I went looking for another solution. jrobeson over on <a href="irc://irc.freenode.net/symfony">IRC</a> suggested a closure loader. In AppKernel.php, in <code>registerContainerConfiguration()</code> your config file is loaded using <code>$loader-&gt;load($resource)</code>. The resource being the path to your config file.</p>
+
+<p>You can also pass a closure to the same method. That closure will receive an instance of <code>ContainerBuilder</code> which provides the method <code>loadFromExtension()</code>, which in turn can be used to load configuration from an array. This works like so:
+&#8220;` php AppKernel.php
+public function registerContainerConfiguration(LoaderInterface $loader)
+{
+    $loader->load(<strong>DIR</strong>.&lsquo;/config/config_&rsquo;.$this->getEnvironment().&lsquo;.yml&rsquo;);</p>
+
+<pre><code>$closureLoader = function($container) {
+    $container-&gt;loadFromExtension('extension_name', array(
+        // Config here
+    ));
+};
+$loader-&gt;load($closureLoader);
+</code></pre>
+
+<p>}
+<code>``
+*extension_name* is the name you would put in your config file, *jns_xhprof* in my case. All that's left to do was wrap the $closureLoader stuff in the same</code>if()` as the bundle loading and I was done. Now I can use XHProf locally and the server won&rsquo;t error on my next deploy.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Symfony: Absolute Asset URLs in Twig Templates]]></title>
+    <link href="http://bramvandersype.be/blog/2013/08/12/symfony-absolute-asset-urls-in-twig-templates/"/>
+    <updated>2013-08-12T07:30:00+02:00</updated>
+    <id>http://bramvandersype.be/blog/2013/08/12/symfony-absolute-asset-urls-in-twig-templates</id>
+    <content type="html"><![CDATA[<p>As with many applications, mine sends several e-mails. Some are sent instantaneously, some are sent from the spool. Whatever the case may be, you need absolute urls to links and assets. As an alternative to <code>path()</code>, Symfony provides the <a href="http://symfony.com/doc/current/book/templating.html#linking-to-pages"><code>url()</code></a> function for Twig, which creates an absolute url for a certain path. However, there&rsquo;s no alternative for <code>asset()</code>. The only solutions so far I&rsquo;ve seen, required prepending <code>asset()</code> with <code>app.request.host</code> or something similar.</p>
+
+<!-- more -->
+
+
+<p>This is trivial when all emails are sent from within the browser and Symfony has an active request. However, when trying to send mails from the spool via command line, you&rsquo;ll be hit by an exception.</p>
+
+<p><blockquote><p>You cannot create a service (&ldquo;request&rdquo;) of an inactive scope (&ldquo;request&rdquo;).</p></blockquote></p>
+
+<p>There&rsquo;s <a href="http://symfony.com/doc/2.2/cookbook/console/sending_emails.html">a cookbook entry</a> that gives a hint, but not a solution. By setting the context parameters in your parameters.yml file, you can keep using the <code>url()</code> function in your Twig templates, but trying to use <code>app.request.host</code> (or similar) will still end with the same exception.</p>
+
+<p>The simplest solution, in my opinion, is a Twig extension that will receive an instance of the Router:</p>
+
+<pre><code class="php TwigExtension.php">namespace Acme\DemoBundle\Twig;
+
+use Symfony\Component\Routing\RouterInterface;
+
+class TwigExtension extends \Twig_Extension
+{
+    protected $router;
+
+    /**
+     * Receive Router instance
+     */
+    public function __construct(RouterInterface $router)
+    {
+        $this-&gt;router = $router;
+    }
+
+    /**
+     * Declare the asset_url function
+     */
+    public function getFunctions()
+    {
+        return array(
+            'asset_url' =&gt; new \Twig_Function_Method($this, 'assetUrl'),
+        );
+    }
+
+    /**
+     * Implement asset_url function
+     * We get the router context. This will default to settings in
+     * parameters.yml if there is no active request
+     */
+    public function assetUrl($path)
+    {
+        $context = $this-&gt;router-&gt;getContext();
+        $host = $context-&gt;getScheme().'://'.$context-&gt;getHost();
+
+        return $host.$path;
+    }
+
+    /**
+     * Set a name for the extension
+     */
+    public function getName()
+    {
+        return 'twig_extension';
+    }
+}
+</code></pre>
+
+<p>Declare the extension in your services.yml and pass it the router service.
+<code>yml services.yml
+services:
+    twigextension:
+        class:     Acme\DemoBundle\Twig\TwigExtension
+        arguments: [@router]
+        tags:
+            - { name: twig.extension }
+</code>
+Make sure you don&rsquo;t forget the context parameters in parameters.yml
+<code>yml parameters.yml
+parameters.yml
+    router.request_context.host: example.com
+    router.request_context.scheme: http
+    router.request_context.base_url:
+</code>
+Now you can use this in your views:
+
+<code>html
+{{ asset_url('/path/to/asset.png') }}
+</code>
+</p>
+
+<p>And it will generate a url like &ldquo;<a href="http://example.com/path/to/asset.png">http://example.com/path/to/asset.png</a>&rdquo;, doesn&rsquo;t matter if the view was generated during an actual request, or from command line.</p>
+]]></content>
+  </entry>
+  
+</feed>

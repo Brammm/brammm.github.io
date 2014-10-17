@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Symfony | Brammm]]></title>
+  <link href="http://bramvandersype.be/blog/categories/symfony/atom.xml" rel="self"/>
+  <link href="http://bramvandersype.be/"/>
+  <updated>2014-10-17T14:47:09+02:00</updated>
+  <id>http://bramvandersype.be/</id>
+  <author>
+    <name><![CDATA[Bram Van der Sype]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Enabling and Configuring Bundles From Within AppKernel]]></title>
+    <link href="http://bramvandersype.be/blog/2013/10/21/enabling-and-configuring-bundles-from-within-appkernel/"/>
+    <updated>2013-10-21T11:59:00+02:00</updated>
+    <id>http://bramvandersype.be/blog/2013/10/21/enabling-and-configuring-bundles-from-within-appkernel</id>
+    <content type="html"><![CDATA[<p>I don&rsquo;t use Vagrant (I know, I know) and because of that, my develop machine (my laptop) does not have the same configuration as our server. And while I wanted to use <a href="https://github.com/facebook/xhprof">xhprof</a> locally, our server didn&rsquo;t have it. I also wanted to use the <a href="https://github.com/jonaswouters/XhprofBundle">jns/xhprof-bundle</a>.</p>
+
+<!-- more -->
+
+
+<p>So I threw the bundle in my composer.json file and decided I&rsquo;d only load it for the <code>dev</code> environment <em>and</em> only if xhprof was installed.</p>
+
+<pre><code class="php AppKernel.php">if (in_array($this-&gt;getEnvironment(), array('dev', 'test'))) {
+    // ...
+    if (function_exists('xhprof_enable')) {
+       $bundles[] = new Jns\Bundle\XhprofBundle\JnsXhprofBundle();
+    }
+}
+</code></pre>
+
+<p>Now, the issue with this is: the jns/xhprof-bundle requires some configuration. You can&rsquo;t just leave the configuration inside your config.yml, because then Symfony would complain that it doesn&rsquo;t know why those configuration values are there.</p>
+
+<p>I got the answer on the Symfony IRC channel from jrobeson: use a closure loader. Where you load your configuration file, add the following:
+<figure class='code'><figcaption><span>AppKernel.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">registerContainerConfiguration</span><span class="p">(</span><span class="nx">LoaderInterface</span> <span class="nv">$loader</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="nv">$loader</span><span class="o">-&gt;</span><span class="na">load</span><span class="p">(</span><span class="o">&lt;</span><span class="nx">strong</span><span class="o">&gt;</span><span class="nx">DIR</span><span class="o">&lt;/</span><span class="nx">strong</span><span class="o">&gt;.&amp;</span><span class="nx">lsquo</span><span class="p">;</span><span class="o">/</span><span class="nx">config</span><span class="o">/</span><span class="nx">config_</span><span class="o">&amp;</span><span class="nx">rsquo</span><span class="p">;</span><span class="o">.</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getEnvironment</span><span class="p">()</span><span class="o">.&amp;</span><span class="nx">lsquo</span><span class="p">;</span><span class="o">.</span><span class="nx">yml</span><span class="o">&amp;</span><span class="nx">rsquo</span><span class="p">;);</span><span class="o">&lt;/</span><span class="nx">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="k">if</span> <span class="p">(</span><span class="nb">in_array</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&amp;</span><span class="nx">gt</span><span class="p">;</span><span class="nx">getEnvironment</span><span class="p">(),</span> <span class="k">array</span><span class="p">(</span><span class="s1">&#39;dev&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">))</span> <span class="o">&amp;</span><span class="nx">amp</span><span class="p">;</span><span class="o">&amp;</span><span class="nx">amp</span><span class="p">;</span> <span class="nb">function_exists</span><span class="p">(</span><span class="s1">&#39;xhprof_enable&#39;</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nv">$closureLoader</span> <span class="o">=</span> <span class="k">function</span><span class="p">(</span><span class="nx">ContainerBuilder</span> <span class="nv">$container</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nv">$container</span><span class="o">-&amp;</span><span class="nx">gt</span><span class="p">;</span><span class="nx">loadFromExtension</span><span class="p">(</span><span class="s1">&#39;jns_xhprof&#39;</span><span class="p">,</span> <span class="k">array</span><span class="p">(</span>
+</span><span class='line'>            <span class="s1">&#39;location_lib&#39;</span>    <span class="o">=&amp;</span><span class="nx">gt</span><span class="p">;</span> <span class="s1">&#39;/path/to/xhprof_lib.php&#39;</span><span class="p">,</span>
+</span><span class='line'>            <span class="s1">&#39;location_runs&#39;</span>   <span class="o">=&amp;</span><span class="nx">gt</span><span class="p">;</span> <span class="s1">&#39;/path/to/xhprof_runs.php&#39;</span><span class="p">,</span>
+</span><span class='line'>            <span class="s1">&#39;location_config&#39;</span> <span class="o">=&amp;</span><span class="nx">gt</span><span class="p">;</span> <span class="k">null</span><span class="p">,</span>
+</span><span class='line'>            <span class="s1">&#39;location_web&#39;</span>    <span class="o">=&amp;</span><span class="nx">gt</span><span class="p">;</span> <span class="s1">&#39;http://localhost/xhprof/&#39;</span><span class="p">,</span>
+</span><span class='line'>            <span class="s1">&#39;enabled&#39;</span>         <span class="o">=&amp;</span><span class="nx">gt</span><span class="p">;</span> <span class="k">true</span><span class="p">,</span>
+</span><span class='line'>        <span class="p">));</span>
+</span><span class='line'>    <span class="p">};</span>
+</span><span class='line'>    <span class="nv">$loader</span><span class="o">-&amp;</span><span class="nx">gt</span><span class="p">;</span><span class="nx">load</span><span class="p">(</span><span class="nv">$closureLoader</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="nx">code</span><span class="o">&gt;&lt;/</span><span class="nx">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p><strong>Note:</strong> I know I could have used a different environment, but using this way, if xhprof was installed on the server, I could use it there as well (we have a staging environment on the server that runs the app in dev mode).</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Symfony: Doing Composer Update With Symlinked Assets]]></title>
+    <link href="http://bramvandersype.be/blog/2013/08/12/symfony-doing-composer-update-with-symlinked-assets/"/>
+    <updated>2013-08-12T08:23:00+02:00</updated>
+    <id>http://bramvandersype.be/blog/2013/08/12/symfony-doing-composer-update-with-symlinked-assets</id>
+    <content type="html"><![CDATA[<pre><code>$ composer update
+...
+Installing assets using the hard copy option
+</code></pre>
+
+<p>Ugh fuck. Now I have to make sure I don&rsquo;t forget <code>app/console assets:install --symlink</code>, or I&rsquo;m gonna be cursing next time I&rsquo;m adjusting CSS and I don&rsquo;t see my changes happening, because I forgot they&rsquo;re no longer symlinked.</p>
+
+<!-- more -->
+
+
+<p>By fumbling around, I noticed you can set an environment variable, called <code>SYMFONY_ASSETS_INSTALL</code> that will define the method used when installing assets after a composer update.</p>
+
+<p>To do this on Mac OS X, add this to your ~/.bash_profile:</p>
+
+<pre><code>export SYMFONY_ASSETS_INSTALL=symlink" to ~/.bash_profile
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

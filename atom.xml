@@ -4,7 +4,7 @@
   <title><![CDATA[Brammm]]></title>
   <link href="http://bramvandersype.be/atom.xml" rel="self"/>
   <link href="http://bramvandersype.be/"/>
-  <updated>2014-10-17T14:41:41+02:00</updated>
+  <updated>2014-10-17T14:47:09+02:00</updated>
   <id>http://bramvandersype.be/</id>
   <author>
     <name><![CDATA[Bram Van der Sype]]></name>
@@ -12,5 +12,434 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Upgrading to Mac OS X Mavericks Breaks Apache]]></title>
+    <link href="http://bramvandersype.be/blog/2013/10/23/upgrading-to-mavericks-breaks-apache/"/>
+    <updated>2013-10-23T16:02:00+02:00</updated>
+    <id>http://bramvandersype.be/blog/2013/10/23/upgrading-to-mavericks-breaks-apache</id>
+    <content type="html"><![CDATA[<p>I decided to upgrade to Mavericks today. Things went pretty smooth, right up until trying to continue work. I don&rsquo;t use Vagrant or MAMP, but rather the built in Apache2 (with PHP, etc installed via Homebrew).</p>
+
+<p>My VirtualHosts in <code>/etc/apache2/extra/httpd-vhosts.conf</code> were kept, but going to <a href="http://localhost/">http://localhost/</a> took me to the default &ldquo;It Works!&rdquo; page. I quickly discovered that the httpd.conf file was reset. Stuff I had to do to fix it below.</p>
+
+<!-- more -->
+
+
+<ul>
+<li>In <code>httpd.conf</code>, uncomment <code>Include /private/etc/apache2/extra/httpd-vhosts.conf</code></li>
+<li>In <code>httpd.conf</code>, include the path to mod_php, in my case <code>LoadModule php5_module /usr/local/Cellar/php54/5.4.19/libexec/apache2/libphp5.so</code></li>
+<li>Create a file <code>&lt;yourusername&gt;.conf</code> in <code>/etc/apache2/users</code> with content</li>
+</ul>
+
+
+<figure class='code'><figcaption><span>/etc/apache2/users/bram.conf</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>&lt;Directory &quot;/path/to/your/sites/&quot;&gt;
+</span><span class='line'>Options Indexes MultiViews FollowSymLinks
+</span><span class='line'>AllowOverride All
+</span><span class='line'>Order allow,deny
+</span><span class='line'>Allow from all
+</span><span class='line'>&lt;/Directory&gt;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Chown the file <code>sudo chown root:wheel /etc/apache2/users/&lt;yourusername&gt;.conf</code></li>
+<li>Restart Apache with <code>sudo apachectl restart</code></li>
+</ul>
+
+
+<p>That fixed it for me.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Enabling and Configuring Bundles From Within AppKernel]]></title>
+    <link href="http://bramvandersype.be/blog/2013/10/21/enabling-and-configuring-bundles-from-within-appkernel/"/>
+    <updated>2013-10-21T11:59:00+02:00</updated>
+    <id>http://bramvandersype.be/blog/2013/10/21/enabling-and-configuring-bundles-from-within-appkernel</id>
+    <content type="html"><![CDATA[<p>I don&rsquo;t use Vagrant (I know, I know) and because of that, my develop machine (my laptop) does not have the same configuration as our server. And while I wanted to use <a href="https://github.com/facebook/xhprof">xhprof</a> locally, our server didn&rsquo;t have it. I also wanted to use the <a href="https://github.com/jonaswouters/XhprofBundle">jns/xhprof-bundle</a>.</p>
+
+<!-- more -->
+
+
+<p>So I threw the bundle in my composer.json file and decided I&rsquo;d only load it for the <code>dev</code> environment <em>and</em> only if xhprof was installed.</p>
+
+<figure class='code'><figcaption><span>AppKernel.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nb">in_array</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getEnvironment</span><span class="p">(),</span> <span class="k">array</span><span class="p">(</span><span class="s1">&#39;dev&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">)))</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// ...</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nb">function_exists</span><span class="p">(</span><span class="s1">&#39;xhprof_enable&#39;</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>       <span class="nv">$bundles</span><span class="p">[]</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Jns\Bundle\XhprofBundle\JnsXhprofBundle</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now, the issue with this is: the jns/xhprof-bundle requires some configuration. You can&rsquo;t just leave the configuration inside your config.yml, because then Symfony would complain that it doesn&rsquo;t know why those configuration values are there.</p>
+
+<p>I got the answer on the Symfony IRC channel from jrobeson: use a closure loader. Where you load your configuration file, add the following:</p>
+
+<figure class='code'><figcaption><span>AppKernel.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">registerContainerConfiguration</span><span class="p">(</span><span class="nx">LoaderInterface</span> <span class="nv">$loader</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="nv">$loader</span><span class="o">-&gt;</span><span class="na">load</span><span class="p">(</span><span class="nx">__DIR__</span><span class="o">.</span><span class="s1">&#39;/config/config_&#39;</span><span class="o">.</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getEnvironment</span><span class="p">()</span><span class="o">.</span><span class="s1">&#39;.yml&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nb">in_array</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getEnvironment</span><span class="p">(),</span> <span class="k">array</span><span class="p">(</span><span class="s1">&#39;dev&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">))</span> <span class="o">&amp;&amp;</span> <span class="nb">function_exists</span><span class="p">(</span><span class="s1">&#39;xhprof_enable&#39;</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nv">$closureLoader</span> <span class="o">=</span> <span class="k">function</span><span class="p">(</span><span class="nx">ContainerBuilder</span> <span class="nv">$container</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nv">$container</span><span class="o">-&gt;</span><span class="na">loadFromExtension</span><span class="p">(</span><span class="s1">&#39;jns_xhprof&#39;</span><span class="p">,</span> <span class="k">array</span><span class="p">(</span>
+</span><span class='line'>                <span class="s1">&#39;location_lib&#39;</span>    <span class="o">=&gt;</span> <span class="s1">&#39;/path/to/xhprof_lib.php&#39;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s1">&#39;location_runs&#39;</span>   <span class="o">=&gt;</span> <span class="s1">&#39;/path/to/xhprof_runs.php&#39;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s1">&#39;location_config&#39;</span> <span class="o">=&gt;</span> <span class="k">null</span><span class="p">,</span>
+</span><span class='line'>                <span class="s1">&#39;location_web&#39;</span>    <span class="o">=&gt;</span> <span class="s1">&#39;http://localhost/xhprof/&#39;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s1">&#39;enabled&#39;</span>         <span class="o">=&gt;</span> <span class="k">true</span><span class="p">,</span>
+</span><span class='line'>            <span class="p">));</span>
+</span><span class='line'>        <span class="p">};</span>
+</span><span class='line'>        <span class="nv">$loader</span><span class="o">-&gt;</span><span class="na">load</span><span class="p">(</span><span class="nv">$closureLoader</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>Note:</strong> I know I could have used a different environment, but using this way, if xhprof was installed on the server, I could use it there as well (we have a staging environment on the server that runs the app in dev mode).</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Git Terminal Tricks]]></title>
+    <link href="http://bramvandersype.be/blog/2013/10/09/git-terminal-tricks/"/>
+    <updated>2013-10-09T10:12:00+02:00</updated>
+    <id>http://bramvandersype.be/blog/2013/10/09/git-terminal-tricks</id>
+    <content type="html"><![CDATA[<p>I develop on Mac OS X and do my Git stuff in Terminal but I often found myself cursing at two things:</p>
+
+<ul>
+<li>Doing <code>git status</code> or <code>git branch</code> just to know which branch was active</li>
+<li>Doing <code>git checkout d</code><kbd>Tab</kbd> in the hopes of getting <code>git checkout develop</code></li>
+</ul>
+
+
+<p>This might be horribly obvious to some people and don&rsquo;t ask me why, but only after months of cursing at this, I decided to Google these two things and make my Git life easier.</p>
+
+<!-- more -->
+
+
+<h2>Git auto-complete</h2>
+
+<p>For the auto-complete, I found this stackexchange question: <a href="http://apple.stackexchange.com/questions/55875/git-auto-complete-for-branches-at-the-command-line">git auto-complete for <em>branches</em> at the command line?</a>. <a href="http://apple.stackexchange.com/users/24565/michael-durrant">Michael Durrant</a>&rsquo;s answer is surprisingly simple, but works just fine: download a git-autocomplete bash script and call it in your <code>~/.bash_profile</code> file.</p>
+
+<pre><code>curl https://raw.github.com/git/git/master/contrib/completion/git-completion.bash -o ~/.git-completion.bash
+</code></pre>
+
+<p>Edit (or create) your <code>~/.bash_profile</code> file with your favorite editor (Vim, Nano or <a href="http://www.sublimetext.com/docs/2/osx_command_line.html">maybe even Sublime?</a>) and paste the following:</p>
+
+<pre><code>if [ -f ~/.git-completion.bash ]; then
+    . ~/.git-completion.bash
+fi
+</code></pre>
+
+<blockquote><p>Note that this not only works for branches. If you do <code>git </code><kbd>Tab</kbd><kbd>Tab</kbd> (note the space after <code>git</code>), you get a list of all git sub-commands. <code>git bl</code><kbd>Tab</kbd> would auto-complete to <code>git blame</code>.</p></blockquote>
+
+<h2>Displaying branch names in Terminal</h2>
+
+<p>To display branch names in terminal (next to the current directory), I used a solution found <a href="http://martinfitzpatrick.name/article/add-git-branch-name-to-terminal-prompt-mac">here</a>. Simply copy/paste the following lines in the same <code>~/.bash_profile</code> as before</p>
+
+<pre><code>parse_git_branch() {
+    git branch 2&gt; /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+}
+export PS1="\u@\h \W\[\033[32m\]\$(parse_git_branch)\[\033[00m\] $ "
+</code></pre>
+
+<blockquote><p>Notes</p>
+
+<ul>
+<li>If you already have a PS1 variable, just add the <code>\$(parse_git_branch)</code> somewhere in there.</li>
+<li><code>\[\033[32m\]</code> sets the color of the branch name to green. <code>\[\033[00m\]</code> sets everything back to black. To change the color of the branch name, change the <code>2</code> in the <code>[32m\]</code> bit. You can find the <a href="http://en.wikipedia.org/wiki/ANSI_escape_code#Colors">color codes on Wikipedia</a>.</li>
+<li>You do not need to restart Terminal or anything for the changes to take effect, just do <code>source ~/.bash_profile</code>.</li>
+</ul>
+</blockquote>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Symfony: Loading Bundle Configuration Directly in AppKernel]]></title>
+    <link href="http://bramvandersype.be/blog/2013/08/12/symfony-loading-bundle-configuration-directly-in-appkernel/"/>
+    <updated>2013-08-12T09:19:00+02:00</updated>
+    <id>http://bramvandersype.be/blog/2013/08/12/symfony-loading-bundle-configuration-directly-in-appkernel</id>
+    <content type="html"><![CDATA[<p>I develop locally on my machine. On the server, I have a staging and production environment. Staging is run in dev, production in prod. Something you probably are familiar with. The server is monitored with <a href="http://newrelic.com/">New Relic</a>, but on my local machine, I wanted to use <a href="http://pecl.php.net/package/xhprof">XHProf</a>.</p>
+
+<!-- more -->
+
+
+<p>I wanted to use <a href="https://github.com/jonaswouters/XhprofBundle">jonaswouters&#8217; XHProfBundle</a>, but out of the box, this would have caused a bit of an issue when deploying: I couldn&rsquo;t simply enable the bundle in AppKernel.php because Staging also runs the dev environment and XHProf isn&rsquo;t installed on the server.</p>
+
+<p>I decided to wrap the bundle loading in <code>if()</code>:</p>
+
+<figure class='code'><figcaption><span>AppKernel.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nb">in_array</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getEnvironment</span><span class="p">(),</span> <span class="k">array</span><span class="p">(</span><span class="s1">&#39;dev&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">)))</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nv">$bundles</span><span class="p">[]</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Symfony\Bundle\WebProfilerBundle\WebProfilerBundle</span><span class="p">();</span>
+</span><span class='line'>    <span class="nv">$bundles</span><span class="p">[]</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Sensio\Bundle\DistributionBundle\SensioDistributionBundle</span><span class="p">();</span>
+</span><span class='line'>    <span class="nv">$bundles</span><span class="p">[]</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Sensio\Bundle\GeneratorBundle\SensioGeneratorBundle</span><span class="p">();</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nb">function_exists</span><span class="p">(</span><span class="s1">&#39;xhprof_enable&#39;</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nv">$bundles</span><span class="p">[]</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Jns\Bundle\XhprofBundle\JnsXhprofBundle</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This would load the bundle only if XHProf was installed on the server.</p>
+
+<p>However, the bundle needs a bit of configuration in config.yml. Trying to work with a configuration file that has configuration for bundles that aren&rsquo;t loaded will result in an InvalidArgumentException:</p>
+
+<blockquote><p>There is no extension able to load the configuration for &#8220;jns_xhprof&#8221;</p></blockquote>
+
+
+<p>As I couldn&rsquo;t repeat the above <code>if()</code> in config.yml, I went looking for another solution. jrobeson over on <a href="irc://irc.freenode.net/symfony">IRC</a> suggested a closure loader. In AppKernel.php, in <code>registerContainerConfiguration()</code> your config file is loaded using <code>$loader-&gt;load($resource)</code>. The resource being the path to your config file.</p>
+
+<p>You can also pass a closure to the same method. That closure will receive an instance of <code>ContainerBuilder</code> which provides the method <code>loadFromExtension()</code>, which in turn can be used to load configuration from an array. This works like so:</p>
+
+<figure class='code'><figcaption><span>AppKernel.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">registerContainerConfiguration</span><span class="p">(</span><span class="nx">LoaderInterface</span> <span class="nv">$loader</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="nv">$loader</span><span class="o">-&gt;</span><span class="na">load</span><span class="p">(</span><span class="nx">__DIR__</span><span class="o">.</span><span class="s1">&#39;/config/config_&#39;</span><span class="o">.</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getEnvironment</span><span class="p">()</span><span class="o">.</span><span class="s1">&#39;.yml&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nv">$closureLoader</span> <span class="o">=</span> <span class="k">function</span><span class="p">(</span><span class="nv">$container</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nv">$container</span><span class="o">-&gt;</span><span class="na">loadFromExtension</span><span class="p">(</span><span class="s1">&#39;extension_name&#39;</span><span class="p">,</span> <span class="k">array</span><span class="p">(</span>
+</span><span class='line'>            <span class="c1">// Config here</span>
+</span><span class='line'>        <span class="p">));</span>
+</span><span class='line'>    <span class="p">};</span>
+</span><span class='line'>    <span class="nv">$loader</span><span class="o">-&gt;</span><span class="na">load</span><span class="p">(</span><span class="nv">$closureLoader</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><em>extension_name</em> is the name you would put in your config file, <em>jns_xhprof</em> in my case. All that&rsquo;s left to do was wrap the $closureLoader stuff in the same <code>if()</code> as the bundle loading and I was done. Now I can use XHProf locally and the server won&rsquo;t error on my next deploy.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Symfony: Doing Composer Update With Symlinked Assets]]></title>
+    <link href="http://bramvandersype.be/blog/2013/08/12/symfony-doing-composer-update-with-symlinked-assets/"/>
+    <updated>2013-08-12T08:23:00+02:00</updated>
+    <id>http://bramvandersype.be/blog/2013/08/12/symfony-doing-composer-update-with-symlinked-assets</id>
+    <content type="html"><![CDATA[<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ composer update
+</span><span class='line'>...
+</span><span class='line'>Installing assets using the hard copy option</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Ugh fuck. Now I have to make sure I don&rsquo;t forget <code>app/console assets:install --symlink</code>, or I&rsquo;m gonna be cursing next time I&rsquo;m adjusting CSS and I don&rsquo;t see my changes happening, because I forgot they&rsquo;re no longer symlinked.</p>
+
+<!-- more -->
+
+
+<p>By fumbling around, I noticed you can set an environment variable, called <code>SYMFONY_ASSETS_INSTALL</code> that will define the method used when installing assets after a composer update.</p>
+
+<p>To do this on Mac OS X, add this to your ~/.bash_profile:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>export SYMFONY_ASSETS_INSTALL=symlink" to ~/.bash_profile</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Symfony: Absolute Asset URLs in Twig Templates]]></title>
+    <link href="http://bramvandersype.be/blog/2013/08/12/symfony-absolute-asset-urls-in-twig-templates/"/>
+    <updated>2013-08-12T07:30:00+02:00</updated>
+    <id>http://bramvandersype.be/blog/2013/08/12/symfony-absolute-asset-urls-in-twig-templates</id>
+    <content type="html"><![CDATA[<p>As with many applications, mine sends several e-mails. Some are sent instantaneously, some are sent from the spool. Whatever the case may be, you need absolute urls to links and assets. As an alternative to <code>path()</code>, Symfony provides the <a href="http://symfony.com/doc/current/book/templating.html#linking-to-pages"><code>url()</code></a> function for Twig, which creates an absolute url for a certain path. However, there&rsquo;s no alternative for <code>asset()</code>. The only solutions so far I&rsquo;ve seen, required prepending <code>asset()</code> with <code>app.request.host</code> or something similar.</p>
+
+<!-- more -->
+
+
+<p>This is trivial when all emails are sent from within the browser and Symfony has an active request. However, when trying to send mails from the spool via command line, you&rsquo;ll be hit by an exception.</p>
+
+<blockquote><p>You cannot create a service (&#8220;request&#8221;) of an inactive scope (&#8220;request&#8221;).</p></blockquote>
+
+
+<p>There&rsquo;s <a href="http://symfony.com/doc/2.2/cookbook/console/sending_emails.html">a cookbook entry</a> that gives a hint, but not a solution. By setting the context parameters in your parameters.yml file, you can keep using the <code>url()</code> function in your Twig templates, but trying to use <code>app.request.host</code> (or similar) will still end with the same exception.</p>
+
+<p>The simplest solution, in my opinion, is a Twig extension that will receive an instance of the Router:</p>
+
+<figure class='code'><figcaption><span>TwigExtension.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">namespace</span> <span class="nx">Acme\DemoBundle\Twig</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">use</span> <span class="nx">Symfony\Component\Routing\RouterInterface</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">TwigExtension</span> <span class="k">extends</span> <span class="nx">\Twig_Extension</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">protected</span> <span class="nv">$router</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="sd">/**</span>
+</span><span class='line'><span class="sd">     * Receive Router instance</span>
+</span><span class='line'><span class="sd">     */</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">__construct</span><span class="p">(</span><span class="nx">RouterInterface</span> <span class="nv">$router</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">router</span> <span class="o">=</span> <span class="nv">$router</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="sd">/**</span>
+</span><span class='line'><span class="sd">     * Declare the asset_url function</span>
+</span><span class='line'><span class="sd">     */</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">getFunctions</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="k">array</span><span class="p">(</span>
+</span><span class='line'>            <span class="s1">&#39;asset_url&#39;</span> <span class="o">=&gt;</span> <span class="k">new</span> <span class="nx">\Twig_Function_Method</span><span class="p">(</span><span class="nv">$this</span><span class="p">,</span> <span class="s1">&#39;assetUrl&#39;</span><span class="p">),</span>
+</span><span class='line'>        <span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="sd">/**</span>
+</span><span class='line'><span class="sd">     * Implement asset_url function</span>
+</span><span class='line'><span class="sd">     * We get the router context. This will default to settings in</span>
+</span><span class='line'><span class="sd">     * parameters.yml if there is no active request</span>
+</span><span class='line'><span class="sd">     */</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">assetUrl</span><span class="p">(</span><span class="nv">$path</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="nv">$context</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">router</span><span class="o">-&gt;</span><span class="na">getContext</span><span class="p">();</span>
+</span><span class='line'>        <span class="nv">$host</span> <span class="o">=</span> <span class="nv">$context</span><span class="o">-&gt;</span><span class="na">getScheme</span><span class="p">()</span><span class="o">.</span><span class="s1">&#39;://&#39;</span><span class="o">.</span><span class="nv">$context</span><span class="o">-&gt;</span><span class="na">getHost</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="nv">$host</span><span class="o">.</span><span class="nv">$path</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="sd">/**</span>
+</span><span class='line'><span class="sd">     * Set a name for the extension</span>
+</span><span class='line'><span class="sd">     */</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">getName</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="s1">&#39;twig_extension&#39;</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Declare the extension in your services.yml and pass it the router service.</p>
+
+<figure class='code'><figcaption><span>services.yml</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">services</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">twigextension</span><span class="p-Indicator">:</span>
+</span><span class='line'>        <span class="l-Scalar-Plain">class</span><span class="p-Indicator">:</span>     <span class="l-Scalar-Plain">Acme\DemoBundle\Twig\TwigExtension</span>
+</span><span class='line'>        <span class="l-Scalar-Plain">arguments</span><span class="p-Indicator">:</span> <span class="p-Indicator">[</span><span class="err">@</span><span class="nv">router</span><span class="p-Indicator">]</span>
+</span><span class='line'>        <span class="l-Scalar-Plain">tags</span><span class="p-Indicator">:</span>
+</span><span class='line'>            <span class="p-Indicator">-</span> <span class="p-Indicator">{</span> <span class="nv">name</span><span class="p-Indicator">:</span> <span class="nv">twig.extension</span> <span class="p-Indicator">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Make sure you don&rsquo;t forget the context parameters in parameters.yml</p>
+
+<figure class='code'><figcaption><span>parameters.yml</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">parameters.yml</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">router.request_context.host</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">example.com</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">router.request_context.scheme</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">http</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">router.request_context.base_url</span><span class="p-Indicator">:</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you can use this in your views:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'>{{ asset_url(&#39;/path/to/asset.png&#39;) }}
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And it will generate a url like &ldquo;<a href="http://example.com/path/to/asset.png">http://example.com/path/to/asset.png</a>&rdquo;, doesn&rsquo;t matter if the view was generated during an actual request, or from command line.</p>
+]]></content>
+  </entry>
   
 </feed>
