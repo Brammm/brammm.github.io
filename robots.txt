@@ -1,4 +1,4 @@
 User-agent: *
 Disallow: 
 
-Sitemap: http://Brammm.github.io/sitemap.xml 
+Sitemap: http://bramvandersype.be/sitemap.xml 

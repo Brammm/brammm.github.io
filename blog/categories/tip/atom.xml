@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Tip | My Octopress Blog]]></title>
-  <link href="http://Brammm.github.io/blog/categories/tip/atom.xml" rel="self"/>
-  <link href="http://Brammm.github.io/"/>
-  <updated>2014-10-17T15:27:51+02:00</updated>
-  <id>http://Brammm.github.io/</id>
+  <title><![CDATA[Category: Tip | Maybe Useful]]></title>
+  <link href="http://bramvandersype.be/blog/categories/tip/atom.xml" rel="self"/>
+  <link href="http://bramvandersype.be/"/>
+  <updated>2014-10-17T15:29:36+02:00</updated>
+  <id>http://bramvandersype.be/</id>
   <author>
-    <name><![CDATA[Your Name]]></name>
+    <name><![CDATA[Bram Van der Sype]]></name>
     
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Upgrading to Mac OS X Mavericks Breaks Apache]]></title>
-    <link href="http://Brammm.github.io/blog/2013/10/23/upgrading-to-mavericks-breaks-apache/"/>
+    <link href="http://bramvandersype.be/blog/2013/10/23/upgrading-to-mavericks-breaks-apache/"/>
     <updated>2013-10-23T16:02:00+02:00</updated>
-    <id>http://Brammm.github.io/blog/2013/10/23/upgrading-to-mavericks-breaks-apache</id>
+    <id>http://bramvandersype.be/blog/2013/10/23/upgrading-to-mavericks-breaks-apache</id>
     <content type="html"><![CDATA[<p>I decided to upgrade to Mavericks today. Things went pretty smooth, right up until trying to continue work. I don&rsquo;t use Vagrant or MAMP, but rather the built in Apache2 (with PHP, etc installed via Homebrew).</p>
 
 <p>My VirtualHosts in <code>/etc/apache2/extra/httpd-vhosts.conf</code> were kept, but going to <a href="http://localhost/">http://localhost/</a> took me to the default &ldquo;It Works!&rdquo; page. I quickly discovered that the httpd.conf file was reset. Stuff I had to do to fix it below.</p>
@@ -48,9 +48,9 @@
   
   <entry>
     <title type="html"><![CDATA[Git Terminal Tricks]]></title>
-    <link href="http://Brammm.github.io/blog/2013/10/09/git-terminal-tricks/"/>
+    <link href="http://bramvandersype.be/blog/2013/10/09/git-terminal-tricks/"/>
     <updated>2013-10-09T10:12:00+02:00</updated>
-    <id>http://Brammm.github.io/blog/2013/10/09/git-terminal-tricks</id>
+    <id>http://bramvandersype.be/blog/2013/10/09/git-terminal-tricks</id>
     <content type="html"><![CDATA[<p>I develop on Mac OS X and do my Git stuff in Terminal but I often found myself cursing at two things:</p>
 
 <ul>
@@ -103,9 +103,9 @@ export PS1="\u@\h \W\[\033[32m\]\$(parse_git_branch)\[\033[00m\] $ "
   
   <entry>
     <title type="html"><![CDATA[Symfony: Doing Composer Update With Symlinked Assets]]></title>
-    <link href="http://Brammm.github.io/blog/2013/08/12/symfony-doing-composer-update-with-symlinked-assets/"/>
+    <link href="http://bramvandersype.be/blog/2013/08/12/symfony-doing-composer-update-with-symlinked-assets/"/>
     <updated>2013-08-12T08:23:00+02:00</updated>
-    <id>http://Brammm.github.io/blog/2013/08/12/symfony-doing-composer-update-with-symlinked-assets</id>
+    <id>http://bramvandersype.be/blog/2013/08/12/symfony-doing-composer-update-with-symlinked-assets</id>
     <content type="html"><![CDATA[<pre><code>$ composer update
 ...
 Installing assets using the hard copy option

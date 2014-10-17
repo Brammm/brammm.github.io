@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Symfony2 | My Octopress Blog]]></title>
-  <link href="http://Brammm.github.io/blog/categories/symfony2/atom.xml" rel="self"/>
-  <link href="http://Brammm.github.io/"/>
-  <updated>2014-10-17T15:27:51+02:00</updated>
-  <id>http://Brammm.github.io/</id>
+  <title><![CDATA[Category: Symfony2 | Maybe Useful]]></title>
+  <link href="http://bramvandersype.be/blog/categories/symfony2/atom.xml" rel="self"/>
+  <link href="http://bramvandersype.be/"/>
+  <updated>2014-10-17T15:29:36+02:00</updated>
+  <id>http://bramvandersype.be/</id>
   <author>
-    <name><![CDATA[Your Name]]></name>
+    <name><![CDATA[Bram Van der Sype]]></name>
     
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Symfony: Loading Bundle Configuration Directly in AppKernel]]></title>
-    <link href="http://Brammm.github.io/blog/2013/08/12/symfony-loading-bundle-configuration-directly-in-appkernel/"/>
+    <link href="http://bramvandersype.be/blog/2013/08/12/symfony-loading-bundle-configuration-directly-in-appkernel/"/>
     <updated>2013-08-12T09:19:00+02:00</updated>
-    <id>http://Brammm.github.io/blog/2013/08/12/symfony-loading-bundle-configuration-directly-in-appkernel</id>
+    <id>http://bramvandersype.be/blog/2013/08/12/symfony-loading-bundle-configuration-directly-in-appkernel</id>
     <content type="html"><![CDATA[<p>I develop locally on my machine. On the server, I have a staging and production environment. Staging is run in dev, production in prod. Something you probably are familiar with. The server is monitored with <a href="http://newrelic.com/">New Relic</a>, but on my local machine, I wanted to use <a href="http://pecl.php.net/package/xhprof">XHProf</a>.</p>
 
 <!-- more -->
@@ -65,9 +65,9 @@ $loader-&gt;load($closureLoader);
   
   <entry>
     <title type="html"><![CDATA[Symfony: Absolute Asset URLs in Twig Templates]]></title>
-    <link href="http://Brammm.github.io/blog/2013/08/12/symfony-absolute-asset-urls-in-twig-templates/"/>
+    <link href="http://bramvandersype.be/blog/2013/08/12/symfony-absolute-asset-urls-in-twig-templates/"/>
     <updated>2013-08-12T07:30:00+02:00</updated>
-    <id>http://Brammm.github.io/blog/2013/08/12/symfony-absolute-asset-urls-in-twig-templates</id>
+    <id>http://bramvandersype.be/blog/2013/08/12/symfony-absolute-asset-urls-in-twig-templates</id>
     <content type="html"><![CDATA[<p>As with many applications, mine sends several e-mails. Some are sent instantaneously, some are sent from the spool. Whatever the case may be, you need absolute urls to links and assets. As an alternative to <code>path()</code>, Symfony provides the <a href="http://symfony.com/doc/current/book/templating.html#linking-to-pages"><code>url()</code></a> function for Twig, which creates an absolute url for a certain path. However, there&rsquo;s no alternative for <code>asset()</code>. The only solutions so far I&rsquo;ve seen, required prepending <code>asset()</code> with <code>app.request.host</code> or something similar.</p>
 
 <!-- more -->
