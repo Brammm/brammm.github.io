@@ -2,10 +2,10 @@
 #      Main Configs       #
 # ----------------------- #
 
-url: http://Brammm.github.io
-title: My Octopress Blog
-subtitle: A blogging framework for hackers.
-author: Your Name
+url: http://bramvandersype.be
+title: Maybe Useful
+subtitle: Some things I've collected over time
+author: Bram Van der Sype
 simple_search: https://www.google.com/search
 description:
 
@@ -95,7 +95,7 @@ disqus_short_name:
 disqus_show_comment_count: false
 
 # Google Analytics
-google_analytics_tracking_id:
+google_analytics_tracking_id: UA-4630203-7
 
 # Facebook Like
 facebook_like: false
